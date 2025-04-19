@@ -1,3 +1,4 @@
+
 import express from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
@@ -15,27 +16,26 @@ const PORT = process.env.PORT || 5000;
 const NODE_ENV = process.env.NODE_ENV || 'development'; // Default to 'development'
 const app = express();
 
-// db connection 
+// Database connection
 DbCon();
 
 app.use(express.json());
-app.use(express.static('public'));
 app.use(cors());
 
+// API routes
 app.use('/api/Auth', AuthRoutes);
 app.use('/api/messages', MessageRoutes);
 
-if (NODE_ENV === 'production') {
+// Serve static files from the React frontend app
+
   const __dirname = path.resolve();
   app.use(express.static(path.join(__dirname, './Frontend/dist')));
+
+  // Handle React routing, return all requests to React app
   app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, './Frontend/dist', 'index.html'));
+    res.sendFile(path.join(__dirname, './Frontend/dist', 'index.html'));
   });
-} else {
-  app.get('/', (req, res) => {
-    res.send('API is running...');
-  });
-}
+
 
 // Create HTTP Server
 const server = createServer(app);
@@ -48,54 +48,58 @@ const io = new Server(server, {
   },
 });
 
+let users = [];
 
- 
-let users=[]
-const Addusers=(userId,socketId)=>{
-  !users.some((user)=>user.userId===userId)&&
-  users.push({userId, socketId})
-}
-const ReomveUser=(socketId)=>{
-  users=users.filter((user)=>user.socketId!==socketId)
-}
-const GetUser=(userId)=>{
-  return users.find((user)=>user.userId===userId)
-}
-io.on('connection',(socket)=>{
-  // when connected
-  console.log('a user connected',socket.id)
-  socket.on('AddUserSocket',(userId)=>{
-    console.log('userid',userId)
-    Addusers(userId, socket.id)
-    io.emit('getUsers', users)
-    console.log('usersfromscoket',users)
+const AddUser  = (userId, socketId) => {
+  !users.some((user) => user.userId === userId) && users.push({ userId, socketId });
+};
 
-  })
-// message
-socket.on('sendMessage', (data) => {
-  const { senderId, receiverId, message } = data.messagedata;
-  console.log('revierId',receiverId)
-  const user = GetUser(receiverId);
-  console.log('senderUser',user)
-  if (user?.socketId) {
-    io.to(user.socketId).emit('receiveMessage', {
-      userId: senderId,
-      message,
-    });
-  } else {
-    console.log('Receiver not connected');
-  }
-  console.log('messagedata', data);
+const RemoveUser  = (socketId) => {
+  users = users.filter((user) => user.socketId !== socketId);
+};
+
+const GetUser  = (userId) => {
+  return users.find((user) => user.userId === userId);
+};
+
+io.on('connection', (socket) => {
+  // When connected
+  console.log('A user connected', socket.id);
+  
+  socket.on('AddUser Socket', (userId) => {
+    console.log('User  ID:', userId);
+    AddUser (userId, socket.id);
+    io.emit('getUsers', users);
+    console.log('Users from socket:', users);
+  });
+
+  // Message handling
+  socket.on('sendMessage', (data) => {
+    const { senderId, receiverId, message } = data.messagedata;
+    console.log('Receiver ID:', receiverId);
+    const user = GetUser (receiverId);
+    console.log('Sender User:', user);
+    
+    if (user?.socketId) {
+      io.to(user.socketId).emit('receiveMessage', {
+        userId: senderId,
+        message,
+      });
+    } else {
+      console.log('Receiver not connected');
+    }
+    console.log('Message data:', data);
+  });
+
+  // When disconnected
+  socket.on('disconnect', () => {
+    console.log('A user disconnected');
+    RemoveUser (socket.id);
+    io.emit('getUsers', users);
+    console.log(users);
+  });
 });
 
-  // when desction
-  socket.on('disconnect',()=>{
-    console.log('a user disconnected')
-    ReomveUser(socket.id)
-    io.emit('getUsers', users)
-    console.log(users)
-  })
-})
 // Start the server
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT} in ${NODE_ENV} mode`);
