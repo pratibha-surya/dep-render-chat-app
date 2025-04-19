@@ -15,9 +15,8 @@ export const Register=async(req,res)=>{
         if(existingUser){
             return res.status(400).json({success:false,message:"User already exists"})
         }
-        const baseUrl = `${req.protocol}://${req.get('host')}`;
-       
-        const imagePath = `${baseUrl}/images/${req.file.filename}`;
+     
+        const imagePath =req.file.filename
         const hashedPassword=await bcryptjs.hash(password,10)
         const newUser=new UserModel({
             name,

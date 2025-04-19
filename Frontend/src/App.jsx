@@ -8,6 +8,7 @@ import Register from './pages/Register';
 import  { Toaster } from 'react-hot-toast';
 import { persistor, store } from './redux/Store';
 import { PersistGate } from 'redux-persist/integration/react';
+import Dm from './components/Dm';
 // import { Providers } from './components/createconte';
 
 
@@ -20,7 +21,8 @@ function App() {
       <BrowserRouter>
         <Toaster />
         <Routes>
-          <Route path="/" element={<Home />} />
+            <Route path="/" element={<Home />} />
+            <Route path="/dk" element={Dm}/>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Routes>

@@ -1,4 +1,4 @@
-
+import morgan from 'morgan';
 import express from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
@@ -21,21 +21,23 @@ DbCon();
 
 app.use(express.json());
 app.use(cors());
-
+app.use(morgan("combined"));
 // API routes
 app.use('/api/Auth', AuthRoutes);
 app.use('/api/messages', MessageRoutes);
 
+// Serve static files from the public directory
+const __dirname = path.resolve();
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 // Serve static files from the React frontend app
+app.use(express.static(path.join(__dirname, './Frontend/dist')));
 
-  const __dirname = path.resolve();
-  app.use(express.static(path.join(__dirname, './Frontend/dist')));
-
-  // Handle React routing, return all requests to React app
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, './Frontend/dist', 'index.html'));
-  });
-
+// Handle React routing, return all requests to React app
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, './Frontend/dist', 'index.html'));
+});
 
 // Create HTTP Server
 const server = createServer(app);
@@ -50,15 +52,15 @@ const io = new Server(server, {
 
 let users = [];
 
-const AddUser  = (userId, socketId) => {
+const AddUser   = (userId, socketId) => {
   !users.some((user) => user.userId === userId) && users.push({ userId, socketId });
 };
 
-const RemoveUser  = (socketId) => {
+const RemoveUser   = (socketId) => {
   users = users.filter((user) => user.socketId !== socketId);
 };
 
-const GetUser  = (userId) => {
+const GetUser   = (userId) => {
   return users.find((user) => user.userId === userId);
 };
 
@@ -66,9 +68,9 @@ io.on('connection', (socket) => {
   // When connected
   console.log('A user connected', socket.id);
   
-  socket.on('AddUser Socket', (userId) => {
-    console.log('User  ID:', userId);
-    AddUser (userId, socket.id);
+  socket.on('AddUser  Socket', (userId) => {
+    console.log('User   ID:', userId);
+    AddUser  (userId, socket.id);
     io.emit('getUsers', users);
     console.log('Users from socket:', users);
   });
@@ -77,7 +79,7 @@ io.on('connection', (socket) => {
   socket.on('sendMessage', (data) => {
     const { senderId, receiverId, message } = data.messagedata;
     console.log('Receiver ID:', receiverId);
-    const user = GetUser (receiverId);
+    const user = GetUser  (receiverId);
     console.log('Sender User:', user);
     
     if (user?.socketId) {
@@ -94,7 +96,7 @@ io.on('connection', (socket) => {
   // When disconnected
   socket.on('disconnect', () => {
     console.log('A user disconnected');
-    RemoveUser (socket.id);
+    RemoveUser  (socket.id);
     io.emit('getUsers', users);
     console.log(users);
   });

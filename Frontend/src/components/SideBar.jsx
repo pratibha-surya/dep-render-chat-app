@@ -115,7 +115,8 @@ export const SideBar = ({ socket }) => {
       onClick={() => setDropdownOpen(!isDropdownOpen)}
     >
       <img
-        src={user?.profile}
+                src={`${Baseurl}/uploads/${user?.profile}`}
+             
         className="w-9 h-9 rounded-full"
         alt="Profile"
       />
