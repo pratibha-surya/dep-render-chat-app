@@ -9,6 +9,8 @@ import { BsThreeDotsVertical } from 'react-icons/bs';
 import { IoIosVideocam } from 'react-icons/io';
 
 
+
+
 export const Chat = ({socket}) => {
   const { slectedUser } = useSelector((state) => state.user);
   const { user } = useSelector((state) => state.auth);
@@ -20,7 +22,8 @@ export const Chat = ({socket}) => {
   const inputvalue = useRef();
 
 
- const dddr = 'http://localhost:4000/uploads/bebe.jpg'
+  const dddr = 'http://localhost:4000/uploads/bebe.jpg'
+
   const getMessages = async () => {
     if (!user || !slectedUser) return;
 
@@ -112,12 +115,12 @@ export const Chat = ({socket}) => {
           <div className="w-full max-w-[940px] fixed top-0 z-10 flex justify-between items-center py-2 px-4 bg-[#F0F2F5] shadow-md">
             <div className="flex gap-[10px] items-center">
                 <img
-                  src={`http://localhost:4000/uploads/bebe.jpg`}
-                // src={`${Baseurl}/uploads/${slectedUser.profile}`}
+            
+                src={`${Baseurl}/uploads/${slectedUser.profile}`}
                 alt="Profile"
                 className="ml-[13px] rounded-[50%] w-[50px] h-[50px] object-cover"
                 />
-               
+               {console.log(Baseurl,'jjjjjjjjjjjjjjjjjj')}
               <div>
                 <h3 className='text-[20px]'>{slectedUser.name}</h3>
                 {/* <span className="flex">online</span> */}

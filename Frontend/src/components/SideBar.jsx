@@ -36,8 +36,7 @@ export const SideBar = ({ socket }) => {
   };
 
   // Filter users to exclude the current user and apply the search filter
-  const filteredUsers = userdata
-    .filter((curUser) => curUser._id !== user._id)
+  const filteredUsers = userdata?.filter((curUser) => curUser._id !== user._id)
     .filter((item) => item.name.toLowerCase().includes(search.toLowerCase()));
 
   // Fetch users when the component mounts
@@ -147,7 +146,7 @@ export const SideBar = ({ socket }) => {
         <div className="my-8 flex-1">
           <h6 className="text-sm text-gray-700 font-semibold mb-6">Teams</h6>
           <ul className="space-y-6">
-            {filteredUsers.map((curUser) => (
+            {filteredUsers?.map((curUser) => (
               <li
                 key={curUser._id}
                 onClick={() => handleUserSelect(curUser)}
@@ -155,7 +154,7 @@ export const SideBar = ({ socket }) => {
               >
                 <span className="relative inline-block mr-4">
                   <img
-                    src={curUser.profile}
+                    src={`${Baseurl}/uploads/${user?.profile}`}
                     className="ml-[13px] rounded-full w-[50px] h-[50px] object-cover"
                     alt="Profile"
                   />
