@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './fetaures/authSlice';
 import { persistStore, persistReducer } from 'redux-persist';
-import storage from 'redux-persist/lib/storage'; // Defaults to localStorage for web
+import storage from 'redux-persist/lib/storage/session'; // Defaults to localStorage for web
 import { combineReducers } from 'redux';
 import userReducer from './fetaures/userSlice';
 
